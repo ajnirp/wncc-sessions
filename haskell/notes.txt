@@ -1,0 +1,4 @@
+install the haskell platform: sudo apt-get install haskell-platform
+	haskell compiler
+	haskell REPL
+	cabal package manager

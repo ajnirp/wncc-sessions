@@ -1,0 +1,15 @@
+THOSE OF YOU USING WINDOWS
+==========================
+
+Hopefully you downloaded Python 2.7 already. Please open up an IDLE window.
+
+If you have Python 3.x, that's fine. There might be a few syntax differences, but that's not going to be a huge problem.
+
+You should see something like this <-------
+
+THOSE OF YOU USING UBUNTU
+=========================
+
+Open up a terminal, type 'python', hit Enter. You should see something like this
+
+>>>
