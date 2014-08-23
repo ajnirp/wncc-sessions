@@ -2,3 +2,107 @@ install the haskell platform: sudo apt-get install haskell-platform
 	haskell compiler
 	haskell REPL
 	cabal package manager
+
+the long way
+	learn you a haskell for great good
+	real world haskell
+
+http://yannesposito.com/Scratch/en/blog/Haskell-the-Hard-Way/
+
+how to use ghci
+	:t
+	:l
+
+ghc example
+runhaskell example
+
+f x y = x * x + y * y
+add function type annotation
+Int -> Int -> Int
+problems if Float
+Num a => a -> a -> a
+
+eta reduction
+
+square x = x ^ 2
+square x = (^) x 2
+-- Prelude> :t (^)
+-- (^) :: (Integral b, Num a) => a -> b -> a
+-- let's do partial application. note: PA is not currying!
+-- http://stackoverflow.com/questions/218025/what-is-the-difference-between-currying-and-partial-application
+square x = (^ 2) x
+-- eta reduction
+square = (^ 2)
+
+-- . operator
+-- f . g is basically f (g ())
+evenSum = sum . filter even
+
+-- type construction using 'data'
+
+data Complex = Complex Int Int
+-- oi, we need all kinds of numbers!
+data Complex = Num a => Complex a a
+-- record syntax gives us free constructors
+data Complex = Num a => Complex { real :: a, imag :: a }
+-- now we initialize in any order
+c = Complex 1.0 2.0
+z = Complex { img = 4, real = 3 }
+real c
+img z
+
+--------
+
+data Name   = NameConstr String
+data Color  = ColorConstr Strin
+
+data TypeName =   ConstructorName  [types]
+                | ConstructorName2 [types]
+                | ...
+
+Generally the usage is to use the same name for the DataTypeName and DataTypeConstructor.
+
+--------
+
+-- i wanna print, read-in and compare my data types!
+-- deriving be
+infixr 5 ::: -- 5 is the precedence
+data List a = Nil | a ::: (List a)
+              deriving (Show, Read, Eq, Ord)
+
+-- trees
+import Data.List
+data BinTree a = Empty
+                 | Node a (BinTree a) (BinTree a)
+                 deriving (Show)
+
+-----
+
+doing IO
+
+f :: IO a
+f = do
+  x <- action1 -- IO b
+  action2 x -- IO ()
+  y <- action3 -- IO c
+  action4 x y -- IO a
+  -- where x :: b, y :: c
+
+1. each line has type IO *
+
+2. if something :: IO a
+and we have a line
+
+x <- something
+
+then x :: a
+
+3. every line in a do block is either
+
+x <- action [args] -- action [args] :: IO b, x :: b
+or
+action [args] -- IO a, generally a is ()
+
+---
+
+In an impure language, the state of the world can be seen as a huge hidden global variable. This hidden variable is accessible by all functions of your language.
