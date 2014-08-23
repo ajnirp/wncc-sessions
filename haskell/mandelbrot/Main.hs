@@ -1,3 +1,4 @@
+-- not my own code, this is just a bunch of minor modifications to
 -- http://yannesposito.com/Scratch/en/blog/Haskell-OpenGL-Mandelbrot/
 
 import Graphics.Rendering.OpenGL
