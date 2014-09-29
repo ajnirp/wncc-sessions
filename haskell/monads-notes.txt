@@ -1,0 +1,17 @@
+http://blog.sigfpe.com/2006/08/you-could-have-invented-monads-and.html
+
+Show that lift f * lift g = lift (f.g)
+
+bind f' (gx gs) = let (fx, fs) = f' (gx) in (fx, gs ++ fs)
+
+lift f x = (f x, "")
+
+lift f * lift g = lift (f.g)
+
+(lift f * lift g) x =
+bind (lift f) (lift g x) =
+bind (lift f) (g x, "") =
+(1st term of lift f (g x), "" + "") =
+(f g x, "") =
+((f . g) x, "") =
+lift (f . g) x

@@ -22,23 +22,25 @@ complex x y = C x y
 real :: Complex -> GLfloat
 real (C x y) = x
 
-im :: Complex -> GLfloat
-im (C x y) = y
+--im :: Complex -> GLfloat
+--im (C x y) = y
 
 magnitude :: Complex -> GLfloat
 magnitude = real . abs -- function composition
 
-width = 700 :: GLfloat
-height = 700 :: GLfloat
+--width = 1366 :: GLfloat
+--height = 768 :: GLfloat
 
-size = Size 700 700
+width = 1920 :: GLfloat
+height = 1080 :: GLfloat
 
 main :: IO ()
 main = do
   (progName, _) <- getArgsAndInitialize
   initialDisplayMode $= [DoubleBuffered]
-  initialWindowSize $= size
+  initialWindowSize $= (Size 1920 1080)
   createWindow "Mandelbrot"
+  --fullScreen
   displayCallback $= display
   mainLoop
 
@@ -62,13 +64,15 @@ colorFromValue n =
     t i = 0.5 + 0.5*cos(fromIntegral i / 10)
   in
     --Color3 (t n) (t (n+5)) (t (n+10)) -- brown
+    --Color3 (t n) (t (n+10) (t (n+5)) -- pink
+    --Color3 (t (n+10)) (t n) (t (n+5)) -- green
     Color3 (t (n+10)) (t (n+5)) (t n) -- blue
 
 mandel x y =
-  let r = 2.0 * x / width
-      i = 2.0 * y / height
+  let r = 2.0 * 1366 * (1 / sqrt(1366*1366 + 768*768)) * x / width
+      i = 2.0 * 768 * (1 / sqrt(1366*1366 + 768*768)) * y / height
   in
-      f (complex r i) (complex 0 0) 24
+      f (complex r i) (complex 0 0) 16
 
 -- The Mandelbrot set is the set of complex number c such that the following sequence does not escape to infinity.
 -- fc(z) = z^2 + c
