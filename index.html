@@ -1,0 +1,912 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Exploring Haskell</title>
+
+		<meta name="description" content="Haskell Session presented at WNCC 29 Sep 2014">
+		<meta name="author" content="Rohan Prinja">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/beige.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+		<script>
+			if( window.location.search.match( /print-pdf/gi ) ) {
+				var link = document.createElement( 'link' );
+				link.rel = 'stylesheet';
+				link.type = 'text/css';
+				link.href = 'css/print/pdf.css';
+				document.getElementsByTagName( 'head' )[0].appendChild( link );
+			}
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>Exploring Haskell</h1>
+					<h3>An Introduction to Functional Programming</h3>
+					<p>
+						<small>Made by <a href="http://wenderen.neocities.org">Rohan Prinja</a> / <a href="http://github.com/wenderen">@wenderen</a></small>
+					</p>
+				</section>
+
+				<section>
+					<section>
+						<h2>What's Haskell?</h2>
+						<p>Haskell is a:</p>
+							<ol>
+								<li>pure functional</li>
+								<li>compiled</li>
+								<li>statically typed</li>
+								<li>lazily evaluated</li>
+							</ol>
+						<p>programming language with a great set of libraries and a very interesting approach to writing programs</p>
+					</section>
+
+					<section>
+						<h3>Pure functional</h3>
+						<p>When writing programs in a functional language, you write your program as the result of combining a bunch of functions together.</p>
+						<pre><code  data-trim contenteditable class="c++">
+// An example of an impure function in C++
+void increaseAndPrint(int* number) {
+	*number++; // We're modifying the environment here!
+	std::cout << number << std::endl;
+}
+						</code></pre>
+						<p><strong>Pure</strong> means that the functions in the language do not have any side effects. If you run a function many times, it always gives the same result in Haskell!</p>
+					</section>
+
+					<section>
+						<h3>Compiled</h3>
+						<p>Haskell programs are converted into machine code by the Haskell compiler, so you get all the benefits of a compiler!</p>
+						<ol>
+							<li>Type analysis</li>
+							<li>Code executes faster than an interpreted language</li>
+							<li>Compiler optimizations</li>
+						</ol>
+					</section>
+
+					<section>
+						<h3>Statically typed</h3>
+						<p>Haskell has a strong type system that helps you catch silly mistakes</p>
+						<ul>
+							<li>Functions have type signatures</li>
+							<li>Function parameters have types</li>
+							<li>Often, you don't need to do much - the compiler analyses your program and determines what functions and parameters have which types</li>
+						</ul>
+						<pre><code  data-trim contenteditable class="haskell">
+-- this is a type signature
+factorial :: (Integral a) => a -> a
+-- it means "if a is a type belonging to the Integer type class...
+-- then factorial is a function that converts variables of type a...
+-- to variables of type a"
+factorial 0 = 1
+factorial n = n * factorial (n - 1)
+						</code></pre>
+					</section>
+
+					<section>
+						<h3>Lazily Evaluated</h3>
+						<p>Haskell has lazy evaluation - it doesn't calculate the <em>entire</em> value of something if only part of it is needed by a program.</p>
+						<pre><code  data-trim contenteditable class="haskell">
+main = do
+  print (sum first100Even)
+    where first100Even = take 100 [2, 4 ..]
+-- prints 10100
+						</code></pre>
+						<p><code>[2, 4 ..]</code> is an infinite list, yet the program finishes in a finite amount of time!</p>
+						<p>The compiler figures out that we only need the first 100 elements, so it only grabs those elements.</p>
+					</section>
+
+					<!-- <aside class="notes">
+						Oh hey, these are some notes. They'll be hidden in your presentation, but you can see them if you open the speaker notes window (hit 's' on your keyboard).
+					</aside> -->
+				</section>
+
+				<section>
+					<section>
+						<h2>Some Examples</h2>
+						<pre><code data-trim contenteditable class="haskell">
+-- Hello world
+putStrLn "Hello world!"
+
+-- Find the sum of even numbers in an array
+sum (filter even [7, 4, 11, 9, 2, 6, 8])
+
+-- Fibonacci numbers!
+fib 0 = 0
+fib 1 = 1
+fib n = fib (n - 1) + fib (n - 2)
+						</code></pre>
+					</section>
+					<section>
+						<h3>A more complicated example</h3>
+						<p>Print out all permutations of a string</p>
+						<pre><code data-trim contenteditable class="haskell">
+import Data.List
+
+put x 0 ls     = x:ls
+put x i []     = [x]
+put x i (l:ls) = l:(put x (i-1) ls)
+
+perms :: String -> [String]
+perms ""         = [""]
+perms str@(x:xs) = nub $ concatMap (\ func -> (map func subPerms)) putFuncs
+    where subPerms  = perms xs
+          putFuncs  = map (put x) [0 .. (length str)-1]
+
+main = do
+  print $ perms "abc"
+						</code></pre>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Haskell Basics</h2>
+						<h3>Writing programs...</h3>
+						<p>To write a program in Haskell, just write the functions you want, then define a <code>main</code> function.</p>
+						<p>Haskell program files have a <code>.hs</code> extension.</p>
+						<pre><code>
+-- myprogram.hs
+main = do
+  putStrLn "Hello world!"
+						</code></pre>
+					</section>
+					<section>
+						<h3>...and running them</h3>
+						<p>You have a couple of options here. Run directly, or compile and run!</p>
+						<ol class="fragment">
+							<li><code>runhaskell ./myprogram.hs</code></li>
+							<li><code>ghci myprogram.hs; ./myprogram</code></li>
+						</ol>
+					</section>
+					<section>
+						<h3>The interpreter</h3>
+						<p>Although Haskell is a compiled language, it also has an interpreter so you can mess around and test things without having to write an entire program</p>
+						<img src="img/ghci.png" alt="GHCI session example">
+					</section>
+
+					<section>
+						<h3>Using the interpreter</h3>
+						<p><code>ghci</code> is the Haskell interpreter. You can use it to run small snippets of Haskell code.</p>
+						<p>To use it, open up a terminal - you should have <code>haskell-platform</code> installed - and run the command <code>ghci</code></p>
+					</section>
+
+					<section>
+						<p>Some useful interpreter commands</p>
+						<ol class="fragment">
+							<li><code>:t variableName</code> - find the type of a variable</li>
+							<li><code>:t functionName</code> - find the type of a function</li>
+							<li><code>:l filename</code> - load the function definitions of a file into the interpreter</li>
+						</ol>
+						<div class="fragment">
+							<p>Also, <code>let variableName = expression</code> will assign the expression result to the variable</p>
+							<p><code>ghci</code> is useful when you want to test stuff or just play around with Haskell</p>
+						</div>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Defining Functions</h2>
+						<div class="fragment">
+						<p>Function definition is pretty natural</p>
+						<pre><code data-trim contenteditable class="haskell">
+f x y = x*x + y*y
+						</code></pre>
+						</div>
+						<div class="fragment">
+						<p>You can use <code>where</code> to make code easier to read...</p>
+						<pre><code data-trim contenteditable class="haskell">
+f x y = xSquared + ySquared
+	where xSquared = x * x
+	      ySquared = y * y
+						</code></pre>
+						</div>
+						<div class="fragment">
+						<p>...and you can also put function definitions inside <code>where</code>!</p>
+						<pre><code data-trim contenteditable class="haskell">
+f x y = (square x) + (square y)
+	where square z = z * z
+						</code></pre>
+						</div>
+						<div class="fragment">
+						<p>You can add a type signature - most of the time, you won't need to</p>
+						<pre><code data-trim contenteditable class="haskell">
+-- "::" means "has the type"
+f :: Int -> Int -> Int -> Int
+f x y z = x*x + y*y + z*z
+						</code></pre>
+						</div>
+					</section>
+					<section>
+						<h2>Calling functions</h2>
+						<div class="fragment">
+						<p>You call a function the same way you define it:</p>
+						<pre><code data-trim contenteditable class="haskell">
+g x y = x*x + y*y + z*z
+g 2 3 4                -- 30
+						</code></pre>
+						</div>
+						<div class="fragment">
+						<p>You can also call a function with fewer arguments than it supports - this is called <strong>partial application</strong></p>
+						<pre><code data-trim contenteditable class="haskell">
+let f1 = g 2           -- f1 is now a two-argument function
+f1 3 4                 -- this is the same as (g 2) 3 4 i.e. g 2 3 4 i.e. 30
+						</code></pre>
+						</div>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Types, Typeclasses and Type Signatures</h2>
+						<p>In Haskell, everything has a type</p>
+						<ul class="fragment">
+							<li>Function parameters have a type</li>
+							<li>Functions have a return type</li>
+						</ul>
+						<p class="fragment">These two things together make up a function's <em>type signature</em></p>
+					</section>
+					<section>
+						<h3>Types</h3>
+						<p>Some built-in types in Haskell:</p>
+						<ul>
+							<li><strong>Int</strong> - bounded integers</li>
+							<li><strong>Integer</strong> - less efficient than Int, but can also represent unbounded integers</li>
+							<li><strong>Float</strong> - single precision floating point</li>
+							<li><strong>Double</strong> - double precision floating point</li>
+							<li><strong>Bool</strong> - True or False</li>
+							<li><strong>Char</strong> - a character</li>
+						</ul>
+					</section>
+					<section>
+						<h3>Typeclasses</h3>
+						<p>A typeclass is just a collection of methods. A type be <strong>an instance of</strong> many different typeclasses. When a type belongs to a typeclass, it must support every method in the typeclass.</p>
+						<p>For example, the <code>Ord</code> class consists of types that can be compared. So <code>Int</code> and <code>Float</code> are members of this typeclass</p>
+					</section>
+					<section>
+						<h3>Typeclass examples</h3>
+						<p>Here are some built-in typeclasses:</p>
+						<ul>
+							<li><strong>Eq</strong> - for types which support equality testing</li>
+							<li><strong>Ord</strong> - for types which can be compared</li>
+							<li><strong>Show</strong> - for types which can be represented as strings</li>
+							<li><strong>Read</strong> - for types which can be converted from strings</li>
+							<li><strong>Enum</strong> - for types which can be enumerated</li>
+							<li><strong>Bounded</strong> - for types which have a lower and upper bound</li>
+							<li><strong>Num</strong> - for types which can act like numbers</li>
+							<li><strong>Integral</strong> - for types which can act like integers</li>
+							<li><strong>Floating</strong> - for types which can act like floating point numbers</li>
+						</ul>
+					</section>
+
+					<section>
+						<h3>Type signatures</h3>
+						<p>A type signature specifies the input / output types for a function</p>
+						<div class="fragment">
+						<p>The last term is the output type, the rest are the input types</p>
+						<pre><code data-trim contenteditable class="haskell">
+-- Input: a Float and a Char. Output: a list of Ints
+Float -> Char -> [Int]
+						</code></pre>
+						</div>
+						<div class="fragment">
+						<p>You can have type variables too!</p>
+						<pre><code data-trim contenteditable class="haskell">
+-- Input: a parameter of type a (a can be anything), and a list of a's
+-- Output: True or False
+a -> [a] -> Bool
+-- Can you think of a function which might have this type signature?
+						</code></pre>
+						</div>
+						<div class="fragment">
+						<p>You can also specify typeclasses in a type signature!</p>
+						<pre><code data-trim contenteditable class="haskell">
+-- Input: a parameter of type a (a is a comparable type).
+-- Output: a list in which each element has type a
+(Ord a) => [a] -> [a]
+-- Can you think of a function which might have this type signature?
+						</code></pre>
+						</div>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Haskell intro</h2>
+						<h3>Basic expressions</h3>
+						<p>No surprises here!</p>
+						<pre><code data-trim contenteditable class="haskell">
+-- Arithmetic
+1 + 2             -- 3
+2 * 3             -- 6
+18 / 5            -- 3.6
+3 ^ 4             -- 81. ^ only works for integers
+3 ** 4            -- 81
+3 ** 0.5          -- 1.7320508075688772
+4 ^ 58            -- 83076749736557242056487941267521536
+-- Comparisons
+4 /= 5            -- True
+4 == 5            -- False
+"abc" < "def"     -- True
+-- Logic
+True || False     -- True
+True && False     -- False
+						</code></pre>
+					</section>
+				
+					<section>
+						<h2>Lists - the fundamental data structure</h2>
+						<p>In Haskell, a list is a sequence of items of the same type.</p>
+						<pre><code data-trim contenteditable class="haskell">
+-- A list of Floats
+[1.2, 4.3, 9.0, -3.7, 2.5]
+-- In Haskell, a string is really a list of chars
+-- These two are the same
+"a string"
+['a', ' ', 's', 't', 'r', 'i', 'n', 'g']
+-- Lists can be specified by ranges, too
+-- These two are the same
+[1, 3 .. 13]
+[1, 3, 5, 7, 9, 11, 13]
+-- Ranges don't have to contain only integers!
+[0.1, 0.3 ..]
+-- But try to avoid using floating point ranges :)
+[0.1, 0.3, 0.5, 0.7, 0.8999999999999999, 1.0999999999999999]
+-- Infinite lists!
+[1, 5 ..]
+						</code></pre>
+					</section>
+					<section>
+						<h3>Some list functions</h3>
+						<pre><code data-trim contenteditable class="haskell">
+length [1, 2, 6, 8]     -- 4
+head [1, 2, 6, 8]       -- 1
+tail [1, 2, 6, 8]       -- [2, 6, 8]
+init [1, 2, 6, 8]       -- [1, 2, 6]
+last [1, 2, 6, 8]       -- 8
+take 3 [1, 2, 6, 8]     -- [1, 2, 6]
+drop 3 [1, 2, 6, 8]     -- [8]
+sum [1, 2, 6, 8]        -- 17
+product [1, 2, 6, 8]    -- 96
+4 : [1, 2, 6, 8]        -- [4, 1, 2, 6, 8]
+[1, 2] ++ [6, 8]        -- [1, 2, 6, 8]
+[1, 2, 6, 8] !! 0       -- 1
+[1, 2, 6, 8] !! 2       -- 6
+						</code></pre>
+						<p>There are many others, check out the references for more</p>
+					</section>
+					<section>
+						<h3>List Comprehensions</h3>
+						<p>A list comprehension takes a list and returns another list from it.</p>
+						<pre><code data-trim contenteditable class="haskell">
+-- A simple list comprehension
+[ (3*x) + 4 | x <- [4, 5, 2, 3] ]     -- [16, 19, 10, 13]
+-- Taking elements from multiple lists!
+[ x*y | x <- [1, 2, 3], y <- [7, 8] ] -- [7, 8, 14, 16, 21, 24]
+						</code></pre>
+						<p>Whe taking elements from a list, you can also specify the conditions under which they are chosen!</p>
+						<pre><code data-trim contenteditable class="haskell">
+-- 'odd' and 'even' are two boolean functions
+odd 5                                    -- True
+even 5                                   -- False
+[ x | x <- [10 .. 20] , odd x]           -- [11, 13, 15, 17, 19]
+-- Each one of the conditions must be satisfied simultaneously
+[ x | x <- [10 .. 20] , odd x, even x]   -- []
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>Tuples</h2>
+						<p class="fragment">Tuples have a fixed length, and each length determines a different type</p>
+						<pre class="fragment"><code data-trim contenteditable class="haskell">
+[(1 , 2) , (8 , 11 , 5) , (4 , 5)]
+-- error: the second element has a different type from the other two!
+						</code></pre>
+						<p class="fragment">Tuples don't have to contain homogenous data - unlike lists</p>
+						<pre class="fragment"><code data-trim contenteditable class="haskell">
+(1, True, "abc", 'x', -4.3)
+						</code></pre>
+						<p class="fragment">And of course, tuples can contain other tuples</p>
+						<pre class="fragment"><code data-trim contenteditable class="haskell">
+((1, 2), 3, False)
+						</code></pre>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Thinking recursively</h2>
+						<p>In Haskell, functions dealing with lists are often defined recursively.</p>
+						<p>We specify the base case first, then the general case. The general case usually follows a pattern:</p>
+						<ol>
+							<li class="fragment">Do something to the head of the list</li>
+							<li class="fragment">Do something to the tail of the list</li>
+							<li class="fragment">Combine the two values!</li>
+						</ol>
+					</section>
+					<section>
+						<h3>An example</h3>
+						<p>Let's write a function to find the length of a list</p>
+						<pre><code data-trim contenteditable class="haskell">
+-- Base case
+length1 [] = 0
+-- General case
+length1 (x:xs) = 1 + length1 xs
+						</code></pre>
+						<p class="fragment">This is an example of <strong>pattern matching</strong>! The list <code>[1,2,3]</code> will be matched as follows:</p>
+						<pre class="fragment"><code data-trim contenteditable class="haskell">
+[1, 2, 3] == 1 : [2, 3] -- two ways to express the same list
+1 <=> x                 -- the head of the list is matched to x
+[2, 3] <=> xs           -- the tail of the list is matched to xs
+						</code></pre>
+					</section>
+					<section>
+						<h3>Another example</h3>
+						<p>Let's write a function to find the sum of elements in a list</p>
+						<pre class="fragment"><code data-trim contenteditable class="haskell">
+-- Base case
+sum1 [] = 0
+						</code></pre>
+<p class="fragment">The base case is easy. What about the general case?</p>
+						<pre class="fragment"><code data-trim contenteditable class="haskell">
+-- General case
+sum1 (x:xs) = x + sum1 xs
+						</code></pre>
+					</section>
+					<section>
+						<h3>Yet another example</h3>
+						<p>Let's write a function that takes a function f and a list and returns a new list by applying the function f to every element in the old list</p>
+						<pre class="fragment"><code data-trim contenteditable class="haskell">
+-- Base case
+map1 f [] = []
+						</code></pre>
+<p class="fragment">The base case is an empty list, since there is nothing to map over. What about the general case?</p>
+						<pre class="fragment"><code data-trim contenteditable class="haskell">
+-- General case
+map1 f (x:xs) = (f x) : (map1 f xs)
+						</code></pre>
+						<p class="fragment">This example shows us that Haskell can pass functions as parameters too!</p>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>More about functions</h2>
+						<p>As you saw in the last example, Haskell treats functions as first-class objects.</p>
+						<div class="fragment">
+							<p>You can pass functions as arguments...</p>
+							<pre><code data-trim contenteditable class="haskell">
+map even [2, 4, 9, 0, 3, 5]      -- [True, True, False, True, False, False]
+							</code></pre>
+						</div>
+						<div class="fragment">
+							<p>You can have functions without a name (useful for having temporary functions)</p>
+							<pre><code data-trim contenteditable class="haskell">
+filter (\ x -> x > 3) [2, 4, 9, 0, 3, 5]      -- [4, 9, 5]
+							</code></pre>
+						</div>
+						<p class="fragment">Such functions are called <strong>lambda</strong> functions</p>
+					</section>
+					<section>
+						<h3>Composing functions</h3>
+						<div class="fragment">
+							<p>Haskell lets you compose functions by using the <code>.</code> operator</p>
+							<pre><code data-trim contenteditable class="haskell">
+sqr :: Num a => a -> a
+sqr x = x * x
+
+squareThenAddOne = (+1) . sqr
+squareThenAddOne 2                 -- 5
+							</code></pre>
+						</div>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Revisiting an old example</h2>
+						<p>Remember the permutation program? Let's try to understand it now</p>
+						<pre><code data-trim contenteditable class="haskell">
+import Data.List
+
+put x 0 ls     = x:ls
+put x i []     = [x]
+put x i (l:ls) = l:(put x (i-1) ls)
+
+perms :: String -> [String]
+perms ""         = [""]
+perms str@(x:xs) = nub $ concatMap (\ func -> (map func subPerms)) putFuncs
+    where subPerms  = perms xs
+          putFuncs  = map (put x) [0 .. (length str)-1]
+						</code></pre>
+					</section>
+					<section>
+						<p>Let's go over the program bit by bit</p>
+						<pre class="fragment"><code data-trim contenteditable class="haskell">
+import Data.List
+						</code></pre>
+						<p class="fragment">We're importing a library that we will need later on. This library contains some additional useful functions that operate on lists - such as <code>nub</code></p>
+					</section>
+					<section>
+						<pre class="fragment"><code data-trim contenteditable class="haskell">
+put x 0 ls     = x:ls
+put x i []     = [x]
+put x i (l:ls) = l:(put x (i-1) ls)
+						</code></pre>
+						<p class="fragment">This function simply takes an element, a position, and a list. It returns a new list obtained by inserting the element at that position into the list.</p>
+					</section>
+					<section>
+						<pre class="fragment"><code data-trim contenteditable class="haskell">
+perms :: String -> [String]
+						</code></pre>
+						<p class="fragment">This is the type signature of our main permutation function. It takes a <code>String</code> and returns a list of <code>String</code>s</p>
+						<p class="fragment">Note that we didn't specify the type signature for the <code>put</code> function. That's okay. Most of the time the compiler does that for us.</p>
+						<pre class="fragment"><code data-trim contenteditable class="haskell">
+perms ""         = [""]
+						</code></pre>
+						<p class="fragment">Base case. Easy stuff. If a string has zero length, then it has only one permutation, namely, itself</p>
+					</section>
+					<section>
+						<pre class="fragment"><code data-trim contenteditable class="haskell">
+perms str@(x:xs) = nub $ concatMap (\ func -> (map func subPerms)) putFuncs
+    where subPerms  = perms xs
+          putFuncs  = map (put x) [0 .. (length str)-1]
+						</code></pre>
+						<p class="fragment">This is the interesting part :)</p>
+						<p class="fragment">The <code>@</code> is a <strong>pattern-matching capture</strong>. It says "if the argument to <code>perms</code> has head <code>x</code> and tail <code>xs</code>, call the entire thing <code>str</code>"</p>
+						<div class="fragment">
+							<p>The <code>nub</code> function takes a list and removes all duplicate elements from it.</p>
+							<pre><code data-trim contenteditable class="haskell">
+nub [1, 1, 3, 5, 6, 1, 3, 5, 2]               -- [1, 3, 5, 6, 2]
+							</code></pre>
+						</div>
+					</section>
+					<section>
+						<pre class="fragment"><code data-trim contenteditable class="haskell">
+perms str@(x:xs) = nub $ concatMap (\ func -> (map func subPerms)) putFuncs
+    where subPerms  = perms xs
+          putFuncs  = map (put x) [0 .. (length str)-1]
+						</code></pre>
+						<p class="fragment"><code>concatMap</code> is just like <code>map</code>, except that it expects to get a list of lists, which it then concatenates into one lists</p>
+						<pre class="fragment"><code data-trim contenteditable class="haskell">
+    where subPerms  = perms xs
+						</code></pre>
+						<p class="fragment">This is a recursive call - we are just finding all permutations of the string minus the first character</p>
+						<pre class="fragment"><code data-trim contenteditable class="haskell">
+    putFuncs  = map (put x) [0 .. (length str)-1]
+						</code></pre>
+						<p class="fragment">This is the really cool part - we are creating a list of partial functions! The <code>i</code>th element of the list is the partial function <code>put x i</code>! This is a function which takes a list and inserts <code>x</code> at the <code>i</code>th position in that list.	</p>
+					</section>
+					<section>
+						<pre class="fragment"><code data-trim contenteditable class="haskell">
+perms str@(x:xs) = nub $ concatMap (\ func -> (map func subPerms)) putFuncs
+						</code></pre>
+						<p class="fragment">Now it makes sense - we're taking each one of the partial <code>put</code> functions and mapping each one over the result of the recursive call - which is just a list of strings.</p>
+						<p class="fragment">For each <code>put</code> function, we get a list of strings. So for all <code>put</code> functions, we get a list of list of strings, and...</p>
+						<pre class="fragment"><code data-trim contenteditable class="haskell">
+concatMap (\ func -> (map func subPerms)) putFuncs
+						</code></pre>
+						<p class="fragment">...will concatenate that list of list of strings into just a list of strings...</p>
+						<p class="fragment">...and calling <code>nub</code> will remove all duplicates!</p>
+					</section>
+					<section>
+						<p>Looks complicated? Not really. Give it some time!</p>
+						<pre><code data-trim contenteditable class="haskell">
+perms str@(x:xs) = nub $ concatMap (\ func -> (map func subPerms)) putFuncs
+    where subPerms  = perms xs
+          putFuncs  = map (put x) [0 .. (length str)-1]
+          				</code></pre>
+          				<div class="fragment">
+          					<p>Example run of our program:</p>
+	          				<pre><code data-trim contenteditable class="haskell">
+perms "abc"
+--["abc", "acb", "bac", "cab", "bca", "cba"]
+	          				</code></pre>
+          				</div>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>The Standard Library</h2>
+						<p class="fragment">The Haskell standard library has plenty of nice modules. To use a module, you need to import it.</p>
+						<p class="fragment">We've already seen an example of this.</p>
+						<pre class="fragment"><code data-trim contenteditable class="haskell">
+import Data.List
+						</code></pre>
+					</section>
+					<section>
+						<h3>Some more modules</h3>
+						<ul>
+							<li class="fragment">Data.List - functions dealing with lists</li>
+							<li class="fragment">Data.Char - functions dealing with characters</li>
+							<li class="fragment">Data.Map - functions dealing with key-value pairs</li>
+							<li class="fragment">Data.Set - functions dealing with mathematical sets (union, intersection etc.)</li>
+							<li class="fragment">...and plenty more!</li>
+						</ul>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>The Fun Stuff, Level 1</h2>
+						<h3>Renaming types</h3>
+						<div class="fragment">
+						<p>You can rename types to other types</p>
+						<pre><code data-trim contenteditable class="haskell">
+type PersonsAge = Int
+let a = 5 :: PersonsAge
+						</code></pre>
+						</div>
+						<div class="fragment">
+						<p>This is just a cosmetic thing, however. It doesn't actually create a new type. Thus, this code compiles and runs...</p>
+						<pre><code data-trim contenteditable class="haskell">
+type PersonsAge = Int
+
+isLessThanSix :: Int -> Bool
+isLessThanSix x = x < (6 :: Int)
+
+main = do
+  let a = 5 :: PersonsAge in print (isLessThanSix a)
+						</code></pre>
+						</div>
+					</section>
+					<section>
+						<h3>Creating new types from existing ones</h3>
+						<p class="fragment">So what if you want to rename a type and treat it as a new one?</p>
+						<p class="fragment">Answer: <strong>newtype</strong>!</p>
+						<pre class="fragment"><code data-trim contenteditable class="haskell">
+newtype PersonsAge2 = PersonsAge2 Int
+
+isLessThanSix :: Int -> Bool
+isLessThanSix x = x < (6 :: Int)
+
+main = do
+  let b = 5 :: PersonsAge2 in print (isLessThanSix a)
+						</code></pre>
+						<p class="fragment">If we try to compile this, we get an error.</p>
+						<img class="fragment" src="img/newtypes.png"></img>
+					</section>
+					<section>
+						<h3>Defining your own types</h3>
+						<div class="fragment">
+						<p>To define our own types, we can use the <code>data</code> keyword</p>
+						<pre><code data-trim contenteditable class="haskell">
+data Complex Int = Complex { re :: Int, im :: Int }
+-- 're' and 'im' are the fields of the Complex data type
+						</code></pre>
+						</div>
+						<div class="fragment">
+							<p>But this can handle only <code>Int</code>s. This is more general:</p>
+							<pre><code data-trim contenteditable class="haskell">
+data Complex a = Complex { re :: a, im :: a }
+							</code></pre>
+						</div>
+						<div class="fragment">
+							<p>The problem with this is, <code>a</code> can be anything. Including non-numbers.</p>
+							<pre><code data-trim contenteditable class="haskell">
+Complex 'a' 'b'      -- We don't want this!
+							</code></pre>
+						</div>
+						<div class="fragment">
+							<p>We want to prevent this. The solution is to hide the constructor behind another one. Like so:</p>
+							<pre><code data-trim contenteditable class="haskell">
+complex :: (Num a) => a -> a -> Complex a
+complex r i = Complex r i
+							</code></pre>
+						</div>
+					</section>
+					<section>
+						<h3>Deriving from a typeclass</h3>
+						<div class="fragment">
+							<p>If you want a custom data type to be part of a typeclass, use the <code>deriving</code> keyword.</p>
+							<small>
+							<p>This may not always work, because some typeclasses - like <code>Num</code> cannot be derived from.</p>
+							</small>
+							<p>Let's say we want to make complex numbers part of the <code>Show</code> typeclass so that they can be printed</p>
+							<pre><code data-trim contenteditable class="haskell">
+data Complex a = Complex { real :: a, img :: a } deriving Show
+							</code></pre>
+						</div>
+						<div class="fragment">
+							<p>Now we can print complex numbers. Haskell automatically defined the printing for us!</p>
+							<pre><code data-trim contenteditable class="haskell">
+print $ Complex 1 2
+-- Complex {real = 1, img = 2}
+							</code></pre>
+						</div>
+					</section>
+					<section>
+						<div>
+							<p>But what if we want control over the way <code>Complex</code> numbers are printed? Then we must <strong>manually</strong> derive from the <code>Show</code> typeclass</p>
+							<p>For that, we need to implement all functions in the <code>Show</code> typeclass. There is only one such function - <code>show</code></p>
+							<pre><code data-trim contenteditable class="haskell">
+instance (Show a) => Show (Complex a) where
+	show (Complex re im) = "re: " ++ show re ++ " im: " ++ show im
+							</code></pre>
+						</div>
+					</section>
+					<section>
+						<h3>Defining your own typeclasses</h3>
+						<p class="fragment">Until now, we were using the standard typeclasses. Let's reimplement one of the standard typeclasses ourselves to see how things really work.</p>
+						<pre class="fragment"><code data-trim contenteditable class="haskell">
+class Eq a where
+	isEqualTo :: a -> a -> Bool
+	isNotEqualTo :: a -> a -> Bool
+						</code></pre>
+						<p class="fragment">As you can see, to define a typeclass, we need to list out the functions it supports, along with their type signatures</p>
+						<p class="fragment">Don't confuse the <code>class</code> keyword with that of other languages! <code>class</code> should be read as <strong>typeclass</strong>. It has nothing to do with the classes of Java and C++.</p>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>The Fun Stuff, Level 2</h2>
+						<p class="fragment">Remember, Haskell is a pure language. That means it tries to avoid modifications to the "world". This gives Haskell, a lot of advantages, as discussed earlier</p>
+						<div class="fragment">
+							<p>But sometimes, modifications can't be avoided. For example, we might want to take input from a user.</p>
+							<pre><code data-trim contenteditable class="haskell">
+main :: IO ()
+main = do
+	putStrLn "Please enter numbers separated by commas"
+	input <- getLine
+	print $ sum $ toList input
+							</code></pre>
+						</div>
+						<div class="fragment">
+							<p>In the above code, <code>main</code> is an impure function. It is modifying the world.</p>
+						</div>
+					</section>
+
+					<section>
+						<h3>The <code>do</code> keyword</h3>
+						<div class="fragment">
+							<p>The key to understanding the above <code>main</code> function is the <code>do</code> keyword.</p>
+							<p>Inside the do block, every expression has the return type <code>IO a</code></p>
+							<pre><code data-trim contenteditable class="haskell">
+-- it takes a String and returns an empty IO action
+putStrLn :: String -> IO ()
+
+-- it takes no input and returns an IO String
+getLine  :: IO String
+
+-- it takes a showable type 'a' and returns an empty IO action
+print    :: (Show a) => a -> IO ()
+							</code></pre>
+						</div>
+					</section>
+					<section>
+						<p>Inside a <code>do</code> block, if we have a statement</p>
+						<pre><code data-trim contenteditable class="haskell">
+x <- something
+						</code></pre>
+						<p>then if</p>
+						<pre><code data-trim contenteditable class="haskell">
+something :: IO a
+						</code></pre>
+						<p>then</p>
+						<pre><code data-trim contenteditable class="haskell">
+x :: a
+						</code></pre>
+					</section>
+					<section>
+						<p>Furthermore, these are the <em>only</em> kinds of statements we can encounter inside a do block.</p>
+						<pre><code data-trim contenteditable class="haskell">
+action1 :: IO a -- generally, a is ()
+						</code></pre>
+						<p>and</p>
+						<pre><code data-trim contenteditable class="haskell">
+value <- action2 -- where action2 :: IO b
+                 -- and   value   :: b
+						</code></pre>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>The Fun Stuff, Level 3</h2>
+						<div class="fragment">
+							<p><code>IO</code> is a <strong>monad</strong>. A monad is a structure that represents computations defined as a sequence of steps</p>
+						</div>
+						<div class="fragment">
+							<p>Think back to our earlier example. We took input from the user, parsed it into a list and printed the sum of the list. This was a sequence of steps. We used the <code>IO</code> monad to sequence these steps.</p>
+						</div>
+					</section>
+					<section>
+						<h3>So what is a monad?</h3>
+						<p>A monad is three things: a type constructor and two operations called <strong>bind</strong> and <strong>return</strong></p>
+						<p><strong>bind</strong> takes values and puts them in a monadic container</p>
+						<p><strong>return</strong> takes values out of a monadic container</p>
+					</section>
+					<section>
+						<p>In the earlier example, monads encapsulated side effects while changing the world</p>
+						<p>But monads can also be used for all other sorts of things - like error handling as well. References:</p>
+						<ul>
+							<li><a href="http://www.dustingetz.com/2012/04/07/dustins-awesome-monad-tutorial-for-humans-in-python.html">Awesome monad tutorial for humans in python</a></li>
+							<li><a href="blog.sigfpe.com/2006/08/you-could-have-invented-monads-and.html">You could have invented monads</a></li>
+						</ul>
+					</section>
+				</section>
+
+				<section>
+					<h1>Demo!</h1>
+					<a href="http://yannesposito.com/Scratch/en/blog/Haskell-OpenGL-Mandelbrot/">Reference</a>
+				</section>
+
+				<section>
+					<h2>References</h2>
+					<p>Still enthu for more Haskell?</p>
+					<ul>
+						<li><strong>Learn You a Haskell for Great Good</strong> - A friendly beginner's introduction to Haskell</li>
+						<li><strong>Real World Haskell</strong> - A guide to using Haskell to make real-world software</li>
+						<li><strong>A Gentle Introduction to Haskell 98</strong> - An extremely <em>un</em>-gentle introduction to Haskell by one of its creators!</li>
+					</ul>
+				</section>
+
+				<section>
+					<h1>Thank you!</h1>
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+				controls: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'linear', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
